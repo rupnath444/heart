@@ -88,23 +88,47 @@ with open('models/feature_names.pkl', 'wb') as f:
 
 print("Models saved")
 
-# Visualization
-x = range(len(model_names))
-width = 0.2
+# Create separate graphs for each metric
+metrics_data = {
+    'Accuracy': accuracies,
+    'Precision': precisions,
+    'Recall': recalls,
+    'F1 Score': f1_scores
+}
 
-plt.figure(figsize=(12,6))
-plt.bar([i - 1.5*width for i in x], accuracies, width=width, label='Accuracy')
-plt.bar([i - 0.5*width for i in x], precisions, width=width, label='Precision')
-plt.bar([i + 0.5*width for i in x], recalls, width=width, label='Recall')
-plt.bar([i + 1.5*width for i in x], f1_scores, width=width, label='F1 Score')
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
 
-plt.xticks(x, model_names, rotation=20)
-plt.ylim(0, 1)
-plt.ylabel('Score')
-plt.title('Comparison of Model Metrics')
-plt.legend()
-plt.tight_layout()
-plt.show()
+for metric_name, metric_values in metrics_data.items():
+    plt.figure(figsize=(10, 6))
+    
+    # Create bar chart for current metric
+    bars = plt.bar(model_names, metric_values, color=colors, alpha=0.8)
+    
+    # Add value labels on top of bars
+    for i, bar in enumerate(bars):
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                f'{metric_values[i]:.3f}', ha='center', va='bottom', fontweight='bold')
+    
+    # Customize the plot
+    plt.title(f'{metric_name} Comparison Across Models', fontsize=16, fontweight='bold', pad=20)
+    plt.xlabel('Models', fontsize=12, fontweight='bold')
+    plt.ylabel(f'{metric_name} Score', fontsize=12, fontweight='bold')
+    plt.ylim(0, max(metric_values) + 0.1)
+    
+    # Rotate x-axis labels for better readability
+    plt.xticks(rotation=45, ha='right')
+    
+    # Add grid for better readability
+    plt.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # Highlight the best performing model
+    best_idx = metric_values.index(max(metric_values))
+    bars[best_idx].set_color('#ff4444')
+    bars[best_idx].set_alpha(1.0)
+    
+    plt.tight_layout()
+    plt.show()
 
 # Function to load model and make a prediction
 def predict_heart_disease(patient_data):
